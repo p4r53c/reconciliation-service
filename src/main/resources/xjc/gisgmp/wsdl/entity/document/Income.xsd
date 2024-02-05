@@ -1,0 +1,418 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           xmlns:inc="http://roskazna.ru/gisgmp/xsd/116/Income"
+           targetNamespace="http://roskazna.ru/gisgmp/xsd/116/Income" elementFormDefault="qualified"
+           attributeFormDefault="unqualified" xmlns:com="http://roskazna.ru/gisgmp/xsd/116/Common"
+           xmlns:org="http://roskazna.ru/gisgmp/xsd/116/Organization"
+           xmlns:ds="http://www.w3.org/2000/09/xmldsig#">
+
+	<xs:import namespace="http://roskazna.ru/gisgmp/xsd/116/Common"
+	           schemaLocation="../directory/Common.xsd"/>
+	<xs:import namespace="http://roskazna.ru/gisgmp/xsd/116/PaymentInfo"
+	           schemaLocation="Payment.xsd"/>
+	<xs:import namespace="http://roskazna.ru/gisgmp/xsd/116/Organization"
+	           schemaLocation="../directory/Organization.xsd"/>
+	<xs:import namespace="http://roskazna.ru/gisgmp/xsd/116/BudgetIndex"
+	           schemaLocation="../directory/BudgetIndex.xsd"/>
+	<xs:import namespace="http://www.w3.org/2000/09/xmldsig#"
+	           schemaLocation="../../request/xmldsig-core-schema.xsd"/>
+	<xs:complexType name="IncomeType">
+		<xs:annotation>
+			<xs:documentation>Тип зачисление</xs:documentation>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:element name="Payee">
+				<xs:annotation>
+					<xs:documentation>Получатель средств</xs:documentation>
+				</xs:annotation>
+				<xs:complexType>
+					<xs:sequence>
+						<xs:element name="PayeeBancAcc" type="org:AccountType" minOccurs="0">
+							<xs:annotation>
+								<xs:documentation>Расчетный счет получателя средств</xs:documentation>
+							</xs:annotation>
+						</xs:element>
+					</xs:sequence>
+					<xs:attribute name="payeeName" use="required">
+						<xs:annotation>
+							<xs:documentation>Наименование получателя</xs:documentation>
+						</xs:annotation>
+						<xs:simpleType>
+							<xs:restriction base="xs:string">
+								<xs:minLength value="1"/>
+								<xs:maxLength value="500"/>
+							</xs:restriction>
+						</xs:simpleType>
+					</xs:attribute>
+					<xs:attribute name="payeeINN" use="required">
+						<xs:annotation>
+							<xs:documentation>ИНН получателя</xs:documentation>
+						</xs:annotation>
+						<xs:simpleType>
+							<xs:restriction base="xs:string">
+								<xs:maxLength value="12"/>
+							</xs:restriction>
+						</xs:simpleType>
+					</xs:attribute>
+					<xs:attribute name="payeeKPP" use="required">
+						<xs:annotation>
+							<xs:documentation>КПП получателя</xs:documentation>
+						</xs:annotation>
+						<xs:simpleType>
+							<xs:restriction base="xs:string">
+								<xs:maxLength value="9"/>
+							</xs:restriction>
+						</xs:simpleType>
+					</xs:attribute>
+				</xs:complexType>
+			</xs:element>
+			<xs:element name="PaymentIdentificationData">
+				<xs:complexType>
+					<xs:choice>
+						<xs:element name="Bank" type="org:BankType">
+							<xs:annotation>
+								<xs:documentation>Данные банка плательщика</xs:documentation>
+							</xs:annotation>
+						</xs:element>
+						<xs:element name="UFK">
+							<xs:annotation>
+								<xs:documentation>УРН участника (не банка), проведшего платеж, присвоенный при
+									регистрации в ГИС ГМП. Если платеж проведен ТОФК, то элемент должен быть заполнен
+									значением четырехсимвольного кода ТОФК
+								</xs:documentation>
+							</xs:annotation>
+							<xs:simpleType>
+								<xs:restriction base="xs:string">
+									<xs:pattern value="\d{4}"/>
+									<xs:pattern value="[a-zA-Z0-9]{6}"/>
+								</xs:restriction>
+							</xs:simpleType>
+						</xs:element>
+					</xs:choice>
+				</xs:complexType>
+			</xs:element>
+			<xs:element name="IncomeItems">
+				<xs:annotation>
+					<xs:documentation>Строки зачисления</xs:documentation>
+				</xs:annotation>
+				<xs:complexType>
+					<xs:sequence>
+						<xs:element name="IncomeItem" maxOccurs="unbounded">
+							<xs:complexType>
+								<xs:sequence>
+									<xs:element name="TransactionID">
+										<xs:simpleType>
+											<xs:restriction base="xs:string">
+												<xs:maxLength value="5"/>
+											</xs:restriction>
+										</xs:simpleType>
+									</xs:element>
+									<xs:element minOccurs="0" name="TransKind">
+										<xs:simpleType>
+											<xs:restriction base="xs:string">
+												<xs:maxLength value="2"/>
+											</xs:restriction>
+										</xs:simpleType>
+									</xs:element>
+									<xs:element name="SupplierBillID" minOccurs="0">
+										<xs:annotation>
+											<xs:documentation>УИН</xs:documentation>
+										</xs:annotation>
+										<xs:simpleType>
+											<xs:restriction base="xs:string">
+												<xs:maxLength value="25"/>
+											</xs:restriction>
+										</xs:simpleType>
+									</xs:element>
+									<xs:element name="Narrative">
+										<xs:annotation>
+											<xs:documentation>Назначение платежа</xs:documentation>
+										</xs:annotation>
+										<xs:simpleType>
+											<xs:restriction base="xs:string">
+												<xs:maxLength value="210"/>
+												<xs:minLength value="1"/>
+											</xs:restriction>
+										</xs:simpleType>
+									</xs:element>
+									<xs:element name="Amount">
+										<xs:annotation>
+											<xs:documentation>Сумма платежа в копейках</xs:documentation>
+										</xs:annotation>
+										<xs:simpleType>
+											<xs:restriction base="xs:unsignedLong"/>
+										</xs:simpleType>
+									</xs:element>
+									<xs:element name="PaymentDate" type="xs:date">
+										<xs:annotation>
+											<xs:documentation>Дата приема к исполнению распоряжения плательщика
+											</xs:documentation>
+										</xs:annotation>
+									</xs:element>
+									<xs:element minOccurs="0" name="BudgetIndex">
+										<xs:complexType>
+											<xs:sequence>
+												<xs:element name="Status">
+													<xs:annotation>
+														<xs:documentation>Поле 101</xs:documentation>
+													</xs:annotation>
+													<xs:simpleType>
+														<xs:restriction base="xs:string">
+															<xs:maxLength value="2"/>
+														</xs:restriction>
+													</xs:simpleType>
+												</xs:element>
+												<xs:element minOccurs="0" name="Purpose">
+													<xs:annotation>
+														<xs:documentation>Поле 106
+														</xs:documentation>
+													</xs:annotation>
+													<xs:simpleType>
+														<xs:restriction base="xs:string">
+															<xs:minLength value="1"/>
+															<xs:maxLength value="2"/>
+														</xs:restriction>
+													</xs:simpleType>
+												</xs:element>
+												<xs:element minOccurs="0" name="TaxPeriod">
+													<xs:annotation>
+														<xs:documentation>Поле 107
+														</xs:documentation>
+													</xs:annotation>
+													<xs:simpleType>
+														<xs:restriction base="xs:string">
+															<xs:minLength value="1"/>
+															<xs:maxLength value="10"/>
+														</xs:restriction>
+													</xs:simpleType>
+												</xs:element>
+												<xs:element minOccurs="0" name="TaxDocNumber">
+													<xs:annotation>
+														<xs:documentation>Поле 108</xs:documentation>
+													</xs:annotation>
+													<xs:simpleType>
+														<xs:restriction base="xs:string">
+															<xs:maxLength value="15"/>
+														</xs:restriction>
+													</xs:simpleType>
+												</xs:element>
+												<xs:element minOccurs="0" name="TaxDocDate">
+													<xs:annotation>
+														<xs:documentation>Поле 109
+														</xs:documentation>
+													</xs:annotation>
+													<xs:simpleType>
+														<xs:restriction base="xs:string">
+															<xs:maxLength value="10"/>
+														</xs:restriction>
+													</xs:simpleType>
+												</xs:element>
+												<xs:element minOccurs="0" name="PaymentType">
+													<xs:annotation>
+														<xs:documentation>Поле 110</xs:documentation>
+													</xs:annotation>
+													<xs:simpleType>
+														<xs:restriction base="xs:string">
+															<xs:minLength value="1"/>
+															<xs:maxLength value="2"/>
+														</xs:restriction>
+													</xs:simpleType>
+												</xs:element>
+											</xs:sequence>
+										</xs:complexType>
+									</xs:element>
+									<xs:element name="AccDoc">
+										<xs:complexType>
+											<xs:attribute name="accDocNo" use="required">
+												<xs:simpleType>
+													<xs:restriction base="xs:string">
+														<xs:maxLength value="6"/>
+													</xs:restriction>
+												</xs:simpleType>
+											</xs:attribute>
+											<xs:attribute name="accDocDate" type="xs:date"
+											              use="required"/>
+										</xs:complexType>
+									</xs:element>
+									<xs:element name="Payer" minOccurs="0">
+										<xs:annotation>
+											<xs:documentation>Плательщик</xs:documentation>
+										</xs:annotation>
+										<xs:complexType>
+											<xs:sequence minOccurs="0">
+												<xs:element minOccurs="0" name="PayerIdentifier">
+													<xs:simpleType>
+														<xs:restriction base="xs:string">
+															<xs:maxLength value="25"/>
+														</xs:restriction>
+													</xs:simpleType>
+												</xs:element>
+												<xs:element minOccurs="0" name="PayerName">
+													<xs:annotation>
+														<xs:documentation>Наименование плательщика</xs:documentation>
+													</xs:annotation>
+													<xs:simpleType>
+														<xs:restriction base="xs:string">
+															<xs:maxLength value="160"/>
+														</xs:restriction>
+													</xs:simpleType>
+												</xs:element>
+												<xs:element minOccurs="0" name="PayerAccount">
+													<xs:annotation>
+														<xs:documentation>Номер счета плательщика</xs:documentation>
+													</xs:annotation>
+													<xs:simpleType>
+														<xs:restriction base="xs:string">
+															<xs:maxLength value="20"/>
+														</xs:restriction>
+													</xs:simpleType>
+												</xs:element>
+											</xs:sequence>
+										</xs:complexType>
+									</xs:element>
+								</xs:sequence>
+							</xs:complexType>
+						</xs:element>
+					</xs:sequence>
+				</xs:complexType>
+			</xs:element>
+			<xs:element name="ChangeStatus">
+				<xs:annotation>
+					<xs:documentation>Сведения о статусе документа и основаниях его изменения</xs:documentation>
+				</xs:annotation>
+				<xs:complexType>
+					<xs:sequence minOccurs="0">
+						<xs:element name="Reason">
+							<xs:annotation>
+								<xs:documentation>Основание изменения</xs:documentation>
+							</xs:annotation>
+							<xs:simpleType>
+								<xs:restriction base="xs:string">
+									<xs:maxLength value="512"/>
+								</xs:restriction>
+							</xs:simpleType>
+						</xs:element>
+					</xs:sequence>
+					<xs:attribute name="meaning" use="required">
+						<xs:annotation>
+							<xs:documentation>1 - новый; 2 - уточнение; 3 - аннулирование</xs:documentation>
+						</xs:annotation>
+						<xs:simpleType>
+							<xs:restriction base="xs:string">
+								<xs:length value="1"/>
+								<xs:enumeration value="1">
+									<xs:annotation>
+										<xs:documentation>Новый</xs:documentation>
+									</xs:annotation>
+								</xs:enumeration>
+								<xs:enumeration value="2">
+									<xs:annotation>
+										<xs:documentation>Уточнение</xs:documentation>
+									</xs:annotation>
+								</xs:enumeration>
+								<xs:enumeration value="3">
+									<xs:annotation>
+										<xs:documentation>Аннулирование</xs:documentation>
+									</xs:annotation>
+								</xs:enumeration>
+							</xs:restriction>
+						</xs:simpleType>
+					</xs:attribute>
+				</xs:complexType>
+			</xs:element>
+			<xs:element maxOccurs="unbounded" minOccurs="0" ref="com:AdditionalData">
+				<xs:annotation>
+					<xs:documentation>Дополнительные поля</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+		</xs:sequence>
+		<xs:attribute name="version" use="required">
+			<xs:annotation>
+				<xs:documentation>Версия форматов взаимодействия ГИС ГМП</xs:documentation>
+			</xs:annotation>
+			<xs:simpleType>
+				<xs:restriction base="xs:string">
+					<xs:maxLength value="10"/>
+					<xs:enumeration value="1.16.7"/>
+				</xs:restriction>
+			</xs:simpleType>
+		</xs:attribute>
+		<xs:attribute name="consDocNumber" use="required">
+			<xs:annotation>
+				<xs:documentation>Уникальный идентификатор зачисления</xs:documentation>
+			</xs:annotation>
+			<xs:simpleType>
+				<xs:restriction base="xs:string">
+					<xs:minLength value="1"/>
+					<xs:maxLength value="32"/>
+					<xs:pattern value="\d{32}"/>
+				</xs:restriction>
+			</xs:simpleType>
+		</xs:attribute>
+		<xs:attribute name="consDocDate" type="xs:dateTime" use="required">
+			<xs:annotation>
+				<xs:documentation>Дата формирования документа</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute name="KBK">
+			<xs:annotation>
+				<xs:documentation>Код бюджетной классификации</xs:documentation>
+			</xs:annotation>
+			<xs:simpleType>
+				<xs:restriction base="xs:string">
+					<xs:maxLength value="20"/>
+				</xs:restriction>
+			</xs:simpleType>
+		</xs:attribute>
+		<xs:attribute name="OKTMO">
+			<xs:annotation>
+				<xs:documentation>Код ОКТМО, указанный в распоряжении о переводе денежных средств. В случае отсутствия
+					следует указывать значение «0», а также в случае формирования извещения при приеме наличных денежных
+					средств в кассу получателя платежа, следует указывать значение «0»
+				</xs:documentation>
+			</xs:annotation>
+			<xs:simpleType>
+				<xs:restriction base="xs:string">
+					<xs:maxLength value="11"/>
+				</xs:restriction>
+			</xs:simpleType>
+		</xs:attribute>
+		<xs:attribute name="isUncertain" use="required">
+			<xs:annotation>
+				<xs:documentation>Признак отнесения платежа к невыясненным</xs:documentation>
+			</xs:annotation>
+			<xs:simpleType>
+				<xs:restriction base="xs:string">
+					<xs:enumeration value="1">
+						<xs:annotation>
+							<xs:documentation>Проставляется значение «1» для невыясненных поступлений</xs:documentation>
+						</xs:annotation>
+					</xs:enumeration>
+					<xs:enumeration value="0"/>
+				</xs:restriction>
+			</xs:simpleType>
+		</xs:attribute>
+	</xs:complexType>
+	<xs:element name="Income">
+		<xs:annotation>
+			<xs:documentation>Зачисление</xs:documentation>
+		</xs:annotation>
+		<xs:complexType>
+			<xs:complexContent>
+				<xs:extension base="inc:IncomeType">
+					<xs:sequence>
+						<xs:element ref="ds:Signature" minOccurs="0"/>
+					</xs:sequence>
+					<xs:attribute name="Id">
+						<xs:annotation>
+							<xs:documentation>Необходим для наложения ЭП в формате XadES</xs:documentation>
+						</xs:annotation>
+						<xs:simpleType>
+							<xs:restriction base="xs:ID"/>
+						</xs:simpleType>
+					</xs:attribute>
+				</xs:extension>
+			</xs:complexContent>
+		</xs:complexType>
+	</xs:element>
+</xs:schema>

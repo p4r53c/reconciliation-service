@@ -1,0 +1,45 @@
+<wsdl:definitions name="SmevGISGMPService" targetNamespace="http://roskazna.ru/gisgmp/02000000/SmevGISGMPService/" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:unifo="http://roskazna.ru/gisgmp/02000000/SmevGISGMPService/">
+    <wsdl:types>
+        <xsd:schema targetNamespace="http://roskazna.ru/gisgmp/02000000/SmevGISGMPService/" xmlns:smev="http://smev.gosuslugi.ru/rev120315">
+			<xsd:import schemaLocation="request/smev.unifo.rev120315_without_any.xsd"
+						namespace="http://smev.gosuslugi.ru/rev120315"/>
+
+            <xsd:element name="GISGMPTransferMsg" type="smev:BaseMessageType"/>
+        </xsd:schema>
+    </wsdl:types>
+    <wsdl:message name="GISGMPTransferMsgRequest">
+        <wsdl:part element="unifo:GISGMPTransferMsg" name="inputmsg"/>
+    </wsdl:message>
+    <wsdl:message name="GISGMPTransferMsgResponse">
+        <wsdl:part element="unifo:GISGMPTransferMsg" name="outputmsg"/>
+    </wsdl:message>
+    <wsdl:portType name="SmevGISGMPService">
+        <wsdl:operation name="GISGMPTransferMsg">
+            <wsdl:input message="unifo:GISGMPTransferMsgRequest"/>
+            <wsdl:output message="unifo:GISGMPTransferMsgResponse"/>
+        </wsdl:operation>
+    </wsdl:portType>
+
+    <wsdl:binding name="SmevGISGMPServiceSOAP" type="unifo:SmevGISGMPService">
+
+    	<soap:binding style="document" transport="http://schemas.xmlsoap.org/soap/http"/>
+    	<wsdl:operation name="GISGMPTransferMsg">
+
+    		<soap:operation soapAction="http://roskazna.ru/gisgmp/02000000/SmevGISGMPService/GISGMPTransferMsg"/>
+    		<wsdl:input>
+
+    			<soap:body use="literal"/>
+    		</wsdl:input>
+    		<wsdl:output>
+
+    			<soap:body use="literal"/>
+    		</wsdl:output>
+    	</wsdl:operation>
+    </wsdl:binding>
+
+    <wsdl:service name="SmevGISGMPService">
+        <wsdl:port binding="unifo:SmevGISGMPServiceSOAP" name="SmevGISGMPServiceSOAP">
+            <soap:address location="http://roskazna.ru/gisgmp/02000000/"/>
+        </wsdl:port>
+    </wsdl:service>
+</wsdl:definitions>

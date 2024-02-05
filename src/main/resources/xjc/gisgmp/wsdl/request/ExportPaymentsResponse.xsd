@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+            targetNamespace="http://roskazna.ru/gisgmp/xsd/116/ExportPaymentsResponse"
+            elementFormDefault="qualified" attributeFormDefault="unqualified">
+	<xsd:import namespace="http://roskazna.ru/gisgmp/xsd/116/PaymentInfo"
+		schemaLocation="../entity/document/Payment.xsd"/>
+	<xsd:complexType name="ExportPaymentsResponseType">
+		<xsd:sequence>
+			<xsd:element name="Payments">
+				<xsd:annotation>
+					<xsd:documentation>Перечень платежей</xsd:documentation>
+				</xsd:annotation>
+				<xsd:complexType>
+					<xsd:sequence minOccurs="0">
+						<xsd:element name="PaymentInfo" maxOccurs="unbounded">
+							<xsd:annotation>
+								<xsd:documentation/>
+							</xsd:annotation>
+							<xsd:complexType>
+								<xsd:sequence>
+									<xsd:element name="PaymentData" type="xsd:base64Binary">
+										<xsd:annotation>
+											<xsd:documentation>Данные платежа, полученные при импорте от АП/ГАП</xsd:documentation>
+										</xsd:annotation>
+									</xsd:element>
+									<xsd:element name="PaymentSignature" type="xsd:base64Binary"
+										minOccurs="0">
+										<xsd:annotation>
+											<xsd:documentation>Данные файла ЭП   платежа, переданного в ГИС ГМПАП/ГАП </xsd:documentation>
+										</xsd:annotation>
+									</xsd:element>
+									<xsd:element name="PaymentStatus" minOccurs="0"
+										maxOccurs="unbounded">
+										<xsd:annotation>
+											<xsd:documentation>Признак “Сопоставлено с начислением”</xsd:documentation>
+										</xsd:annotation>
+										<xsd:complexType>
+											<xsd:attribute name="name" use="required">
+												<xsd:annotation>
+												<xsd:documentation>Обозначение.
+Для обозначения факта квитирования платежа с начислением в Name указывается значение «Сопоставлено с начислением».
+</xsd:documentation>
+												</xsd:annotation>
+												<xsd:simpleType>
+												<xsd:restriction base="xsd:string">
+												<xsd:minLength value="1"/>
+												<xsd:maxLength value="63"/>
+												</xsd:restriction>
+												</xsd:simpleType>
+											</xsd:attribute>
+											<xsd:attribute name="value">
+												<xsd:annotation>
+												<xsd:documentation>Код, уточнение.
+Для обозначения факта квитирования платежа с начислением в Value указывается УИН, c которым сквитирован платеж.
+</xsd:documentation>
+												</xsd:annotation>
+												<xsd:simpleType>
+												<xsd:restriction base="xsd:string">
+												<xsd:minLength value="0"/>
+												<xsd:maxLength value="25"/>
+												</xsd:restriction>
+												</xsd:simpleType>
+											</xsd:attribute>
+										</xsd:complexType>
+									</xsd:element>
+								</xsd:sequence>
+							</xsd:complexType>
+						</xsd:element>
+					</xsd:sequence>
+					<xsd:attribute name="hasMore" type="xsd:boolean" use="required">
+						<xsd:annotation>
+							<xsd:documentation>false — достигнут конец выборки, true — после последней выгруженной сущности в выборке имеются другие</xsd:documentation>
+						</xsd:annotation>
+					</xsd:attribute>
+					<xsd:attribute default="false" name="needReRequest" type="xsd:boolean">
+						<xsd:annotation>
+							<xsd:documentation>true - Требуется перезапрос. В случае если для получения ответа задействуются внешняя система и ответ от неё не был получен (внешняя система недоступна либо поучена ошибка) </xsd:documentation>
+						</xsd:annotation>
+					</xsd:attribute>
+				</xsd:complexType>
+			</xsd:element>
+		</xsd:sequence>
+	</xsd:complexType>
+</xsd:schema>
